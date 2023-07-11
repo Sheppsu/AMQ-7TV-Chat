@@ -1,8 +1,10 @@
 # AMQ-7TV-Chat
 Tapermonkey script for using 7TV emotes in the AMQ (Anime Music Quiz) chat. I might add more functionality in the future, but this works well enough.
 
+![Image of the UI](https://uwu.so/sheep/5jU3ttkN)
+
 # How to install
-1. Have tapermonkey or some extension that can run the script.
+1. Have tapermonkey or some extension that can run the script (not sure if anything other than tapermonkey works).
 2. Click [here](https://github.com/Sheppsu/AMQ-7TV-Chat/raw/main/script.user.js) and tapermonkey should prompt you to install it. If no prompt appears, you can either copy paste the code into a new script or use import from URL under utilities on the tapermonkey dashboard.
 
 # How to use
