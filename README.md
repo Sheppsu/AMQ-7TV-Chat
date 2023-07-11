@@ -12,5 +12,6 @@ Tapermonkey script for using 7TV emotes in the AMQ (Anime Music Quiz) chat. I mi
   - To add an emote set, paste the emote set ID and click `Add`.
   - To remove an emote set, paste the emote set ID and click `Remove`.
   - To completely clear all emote sets, click `Clear`.
+- You can also hit tab to autocomplete a partially typed emote.
 - You can find an emote set's ID by going to the emote set page and copying the ID from the URL. You can find emote sets on a user's 7TV profile and get to the page from there. You can get to another user's 7TV profile by searching them up with 7TV's user search functionality. Example: The ID of `https://7tv.app/emote-sets/610af345c5ccdd7baf4f6824` is `610af345c5ccdd7baf4f6824`.
 - If you have any issues feel free to open an [issue](https://github.com/Sheppsu/AMQ-7TV-Chat/issues).

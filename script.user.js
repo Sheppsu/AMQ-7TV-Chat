@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ 7TV Emote Adder
 // @namespace    https://github.com/Sheppsu
-// @version      1.0.1
+// @version      1.1.0
 // @description  A way to see 7TV emotes in AMQ chat.
 // @author       Sheppsu
 // @match        https://animemusicquiz.com/*
