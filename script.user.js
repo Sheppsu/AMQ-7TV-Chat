@@ -181,6 +181,40 @@ function loadEmoteSetEditor() {
     });
 }
 
+// Tab completion
+
+function getEmoteCompletionList(partialName) {
+    const emoteNames = Object.keys(emotes);
+    return emoteNames.filter((name) =>
+                             name.toLowerCase().startsWith(partialName.toLowerCase())
+                            );
+}
+
+function onTabPressed(event) {
+    event.preventDefault();
+    const textInput = event.currentTarget
+    const inputVal = textInput.value.trim();
+    const currentInputWords = inputVal.split(" ");
+    const currentPartialWord = currentInputWords[currentInputWords.length - 1];
+    const completionList = getEmoteCompletionList(currentPartialWord);
+
+    if (completionList.length === 0){
+        return;
+    };
+
+    const emoteName = completionList[0];
+    textInput.value = inputVal.replace(currentPartialWord, emoteName+" ");
+};
+
+function tabCompletion() {
+    const textInput = document.getElementById("gcInput");
+
+    textInput.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+            onTabPressed(event);
+        }
+    });
+}
 
 // Functionality
 
@@ -213,6 +247,7 @@ function run() {
     emoteSets = getLocalEmoteSets();
     loadEmoteSetEditor();
     beginLoadingEmotes();
+    tabCompletion(); // run tab-completion func
     const observer = new MutationObserver(onNewChild);
     observer.observe(document.getElementById("gcMessageContainer"), {
         childList: true
