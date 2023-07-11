@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ 7TV Emote Adder
 // @namespace    https://github.com/Sheppsu
-// @version      1.0.0
+// @version      1.0.1
 // @description  A way to see 7TV emotes in AMQ chat.
 // @author       Sheppsu
 // @match        https://animemusicquiz.com/*
@@ -245,13 +245,13 @@ function onNewChild(records, observer) {
 
 function run() {
     emoteSets = getLocalEmoteSets();
-    loadEmoteSetEditor()
-    if (!beginLoadingEmotes()) {return;}
+    loadEmoteSetEditor();
+    beginLoadingEmotes();
     tabCompletion(); // run tab-completion func
     const observer = new MutationObserver(onNewChild);
     observer.observe(document.getElementById("gcMessageContainer"), {
         childList: true
-    })
+    });
 }
 
 
