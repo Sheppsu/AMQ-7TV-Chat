@@ -182,6 +182,48 @@ function loadEmoteSetEditor() {
 }
 
 
+// Tab completion
+function applyComplete() {
+    const textInput = document.getElementById("gcInput");
+
+    function getEmoteCompletionList(partialName) {
+        const emoteNames = Object.keys(emotes);
+        const lowerPartialName = partialName.toLowerCase();
+        return emoteNames.filter((name) =>
+                                 name.toLowerCase().startsWith(lowerPartialName)
+                                );
+    }
+
+    function onTabPressed(event) {
+        event.preventDefault();
+
+        const inputVal = textInput.value.trim();
+        const currentInputWords = inputVal.split(" ");
+        const currentPartialWord = currentInputWords[currentInputWords.length - 1];
+        const completionList = getEmoteCompletionList(currentPartialWord);
+
+        if (completionList.length === 0){
+            return;
+        };
+
+        if (completionList.length === 1) {
+            const emoteName = completionList[0];
+            textInput.value = inputVal.replace(currentPartialWord, emoteName+" ");
+        } else {
+            textInput.value = inputVal.replace(
+                currentPartialWord,
+                completionList[0]+" " // do something here to cycle through completionList with tab, i have no idea how to
+            );
+        }
+    }
+
+    textInput.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+            onTabPressed(event);
+        }
+    });
+}
+
 // Functionality
 
 function onNewChild(records, observer) {
@@ -213,6 +255,7 @@ function run() {
     emoteSets = getLocalEmoteSets();
     loadEmoteSetEditor()
     if (!beginLoadingEmotes()) {return;}
+    applyComplete(); // run tab-completion func
     const observer = new MutationObserver(onNewChild);
     observer.observe(document.getElementById("gcMessageContainer"), {
         childList: true
