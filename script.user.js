@@ -40,12 +40,14 @@ function addLocalEmoteSet(setId) {
 function removeLocalEmoteSet(setId) {
     if (!emoteSets.includes(setId)) {return false;}
     emoteSets.splice(emoteSets.indexOf(setId), 1);
+	delete emotes[setId];
     window.localStorage.setItem("chatEmoteSets", JSON.stringify(emoteSets));
     return true;
 }
 
 function clearLocalEmoteSets() {
     emoteSets = [];
+	emotes = {};
     window.localStorage.setItem("chatEmoteSets", "[]");
 }
 
@@ -101,8 +103,9 @@ function loadEmoteSet(data) {
     emotePicker.insertBefore(newEmoteContainer, allEmotes);
     const container = newEmoteContainer.querySelector("div.gcEmojiPickerEmoteContainer");
 
+	emotes[data.id] = {};
     for (const emote of data.emotes) {
-        emotes[emote.name] = emote.data.id;
+        emotes[data.id][emote.name] = emote.data.id;
         const img = createEmoteElement(emote.name, emote.data.id);
         img.style = "cursor: pointer;";
         img.addEventListener("click", onEmoteClicked);
@@ -183,27 +186,43 @@ function loadEmoteSetEditor() {
 
 // Tab completion
 
-function getEmoteCompletionList(partialName) {
-    const emoteNames = Object.keys(emotes);
-    return emoteNames.filter((name) =>
-                             name.toLowerCase().startsWith(partialName.toLowerCase())
-                            );
+function* getEmoteCompletionList(partialName) {
+	// TODO: use binary search
+	for (const emoteSet of Object.values(emotes)) {
+		for (const emoteName of Object.keys(emoteSet)) {
+			if (emoteName.toLowerCase().startsWith(partialName.toLowerCase())) {
+				yield emoteName;
+			}
+		}
+	}
+}
+
+function getCurrentPartialWord(textInput) {
+    let counter = 0;
+    for (const word of textInput.value.split(" ")) {
+        counter += word.length + 1;
+        if (counter === textInput.selectionStart) {return null;}
+        if (counter > textInput.selectionStart) {
+            return {
+                word: word,
+                start: counter-word.length-1,
+                end: counter-1
+            };
+        }
+    }
 }
 
 function onTabPressed(event) {
     event.preventDefault();
     const textInput = event.currentTarget
-    const inputVal = textInput.value.trim();
-    const currentInputWords = inputVal.split(" ");
-    const currentPartialWord = currentInputWords[currentInputWords.length - 1];
-    const completionList = getEmoteCompletionList(currentPartialWord);
+    const current = getCurrentPartialWord(textInput);
+    if (current === null || current.word === "") {return;}
 
-    if (completionList.length === 0){
-        return;
-    };
-
-    const emoteName = completionList[0];
-    textInput.value = inputVal.replace(currentPartialWord, emoteName+" ");
+    const completionList = getEmoteCompletionList(current.word);
+    const emoteName = completionList.next().value;
+    if (emoteName === undefined) {return;}
+    const text = textInput.value;
+    textInput.value = text.substring(0, current.start) + emoteName + text.substring(current.end);
 };
 
 function tabCompletion() {
@@ -218,26 +237,43 @@ function tabCompletion() {
 
 // Functionality
 
+function getEmoteId(name) {
+	for (const emoteSet of Object.values(emotes)) {
+		if (emoteSet[name] !== undefined) {
+			return emoteSet[name];
+		}
+	}
+	return undefined;
+}
+
+function getNewMessage(msg) {
+	let newMsg = [];
+    let containsEmotes = false;
+    for (const word of msg.innerHTML.split(" ")) {
+		const emoteId = getEmoteId(word);
+		if (emoteId === undefined) {
+			newMsg.push(word);
+		} else {
+			newMsg.push(getEmoteHTML(word, emoteId));
+			containsEmotes = true;
+		}
+    }
+
+	if (containsEmotes) {
+		return newMsg.join(" ");
+	}
+	return null;
+}
+
 function onNewChild(records, observer) {
     for (const record of records) {
         for (const newNode of record.addedNodes) {
             if (!newNode.id.startsWith("gcPlayerMessage")) {return;}
             const msg = newNode.querySelector("span.gcMessage");
 
-            let newMsg = [];
-            let containsEmotes = false;
-            for (const word of msg.innerHTML.split(" ")) {
-                const emoteId = emotes[word];
-                if (emoteId === undefined) {
-                    newMsg.push(word);
-                } else {
-                    newMsg.push(getEmoteHTML(word, emoteId));
-                    containsEmotes = true;
-                }
-            }
-
-            if (containsEmotes) {
-                msg.innerHTML = newMsg.join(" ");
+			const newMsg = getNewMessage(msg);
+            if (newMsg !== null) {
+                msg.innerHTML = newMsg;
             }
         }
     }
